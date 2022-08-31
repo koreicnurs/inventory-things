@@ -1,11 +1,13 @@
 const express = require('express');
 
 const fileDb = require('../fileDb');
+const mySqlDb = require("../mySqlDb");
 const router = express.Router();
 
-router.get('/', (req, res) => {
-    const messages = fileDb.getResources();
-    res.send(messages);
+
+router.get('/', async (req, res) => {
+    const [locations] = await mySqlDb.getConnection().query('SELECT * from locations');
+    res.send(locations);
 });
 
 router.post('/',  (req, res) => {
