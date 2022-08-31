@@ -1,33 +1,40 @@
 const express = require('express');
-
-const fileDb = require('../fileDb');
 const mySqlDb = require("../mySqlDb");
-const router = express.Router();
 
+const router = express.Router();
 
 router.get('/', async (req, res) => {
     const [locations] = await mySqlDb.getConnection().query('SELECT * from locations');
     res.send(locations);
 });
 
-router.post('/',  (req, res) => {
-    if (!req.body.location_title || !req.body.location_id) {
-        return res.status(400).send({error: 'Message missing'});
+router.get('/:id', async (req, res) => {
+    const [location] = await mySqlDb.getConnection().query(
+        `SELECT * from ?? where id = ?`,
+        ['locations', req.params.id]
+    );
+    res.send(location[0]);
+});
+
+router.post('/',  async (req, res) => {
+    if (!req.body.title) {
+        return res.status(400).send({error: 'Something are missing'});
     }
 
     const location = {
-        location_id: req.body.id,
-        location_title: req.body.title,
-        location_description: req.destination
+        title: req.body.title,
+        description: req.body.description
     };
 
-    // if (req.file) {
-    //     categories.image = req.file.filename;
-    // }
+    const newLocation = await mySqlDb.getConnection().query(
+        'INSERT INTO ?? (title, description) values(?, ?)',
+        ['locations', location.title, location.description]
+    )
 
-    fileDb.addResources(location);
-
-    res.send(location);
+    res.send({
+        ...location,
+        id: newLocation.insertId,
+    });
 });
 
 module.exports = router;
