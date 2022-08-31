@@ -5,27 +5,24 @@ const path = require('path');
 const config = require('../config');
 const {nanoid} = require('nanoid');
 
-// const fileDb = require('../fileDb');
 const mySqlDb = require('../mySqlDb');
 const router = express.Router();
 
-// const storage = multer.diskStorage({
-//     destination: (req, file, cb) => {
-//         cb(null, config.uploadPath);
-//     },
-//     filename: (req, file, cb) => {
-//         cb(null, nanoid() + path.extname(file.originalname));
-//     },
-// });
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, config.uploadPath);
+    },
+    filename: (req, file, cb) => {
+        cb(null, nanoid() + path.extname(file.originalname));
+    },
+});
 
-// const upload = multer({storage});
+const upload = multer({storage});
 
 router.get('/', async (req, res) => {
     const [things] = await mySqlDb.getConnection().query('SELECT * from things');
     res.send(things);
 });
-
-
 
 router.post('/',  (req, res) => {
     if (!req.body.title || !req.body.id) {
@@ -38,11 +35,9 @@ router.post('/',  (req, res) => {
         description: req.destination
     };
 
-    // if (req.file) {
-    //     categories.image = req.file.filename;
-    // }
-
-    // fileDb.addResources(categories);
+    if (req.file) {
+        categories.image = req.file.filename;
+    }
 
     res.send(categories);
 });

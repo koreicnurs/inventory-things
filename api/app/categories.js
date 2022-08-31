@@ -1,50 +1,40 @@
 const express = require('express');
-
-const multer = require('multer');
-const path = require('path');
-const config = require('../config');
-const {nanoid} = require('nanoid');
-
-// const fileDb = require('../fileDb');
 const mySqlDb = require('../mySqlDb');
+
 const router = express.Router();
-
-// const storage = multer.diskStorage({
-//     destination: (req, file, cb) => {
-//         cb(null, config.uploadPath);
-//     },
-//     filename: (req, file, cb) => {
-//         cb(null, nanoid() + path.extname(file.originalname));
-//     },
-// });
-
-// const upload = multer({storage});
 
 router.get('/', async (req, res) => {
     const [categories] = await mySqlDb.getConnection().query('SELECT * from categories');
     res.send(categories);
 });
 
+router.get('/:id', async (req, res) => {
+    const [category] = await mySqlDb.getConnection().query(
+        `SELECT * from ?? where id = ?`,
+        ['categories', req.params.id]
+    );
+    res.send(category[0]);
+});
 
-
-router.post('/',  (req, res) => {
-    if (!req.body.title || !req.body.id) {
+router.post('/',  async (req, res) => {
+    if (!req.body.title) {
         return res.status(400).send({error: 'Something are missing'});
     }
 
-    const categories = {
-        id: req.body.id,
+    const category = {
         title: req.body.title,
-        description: req.destination
+        description: req.body.description
     };
 
-    // if (req.file) {
-    //     categories.image = req.file.filename;
-    // }
+    const newCategory = await mySqlDb.getConnection().query(
+        'INSERT INTO ?? (title, description) values(?, ?)',
+        ['categories', category.title, category.description]
+    )
 
-    // fileDb.addResources(categories);
-
-    res.send(categories);
+    res.send({
+        ...category,
+        id: newCategory.insertId,
+    });
 });
 
 module.exports = router;
