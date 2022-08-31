@@ -21,7 +21,7 @@ const storage = multer.diskStorage({
 const upload = multer({storage});
 
 router.get('/', async (req, res) => {
-    const categories = await mySqlDb.getConnection().query('SELECT * from categories');
+    const [categories] = await mySqlDb.getConnection().query('SELECT * from categories');
     res.send(categories);
 });
 
