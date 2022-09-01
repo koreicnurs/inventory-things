@@ -32,6 +32,14 @@ router.get('/:id', async (req, res) => {
     res.send(thing[0]);
 });
 
+router.delete('/:id', async (req, res) => {
+    await mySqlDb.getConnection().query(
+        `DELETE FROM ?? WHERE id = ?`,
+        ['things', req.params.id]
+    );
+    res.send('Deleted');
+});
+
 router.post('/',  upload.single('photo'), async (req, res) => {
     if (!req.body.title || !req.body.location_id || !req.body.category_id) {
         return res.status(400).send({error: 'Something are missing'});
@@ -49,7 +57,7 @@ router.post('/',  upload.single('photo'), async (req, res) => {
     }
 
     const newThing = await mySqlDb.getConnection().query(
-        'INSERT INTO ?? (location_id, category_id, title, description, photo) values(?, ?, ?, ?, ?)',
+        'INSERT INTO ?? (location_id, category_id, title, description, photo) VALUES(?, ?, ?, ?, ?)',
         ['things', thing.location_id, thing.category_id, thing.title, thing.description, thing.photo]
     )
 
@@ -57,6 +65,27 @@ router.post('/',  upload.single('photo'), async (req, res) => {
         ...thing,
         id: newThing.insertId,
     });
+});
+
+router.put('/:id',  upload.single('photo'), async (req, res) => {
+
+    const thing = {
+        location_id: req.body.location_id,
+        category_id: req.body.category_id,
+        title: req.body.title,
+        description: req.body.description
+    };
+
+    if (req.file) {
+        thing.photo = req.file.filename;
+    }
+
+    await mySqlDb.getConnection().query(
+        "UPDATE ?? SET ? where id = ?",
+        ["locations", {...thing}, req.params.id]
+    )
+
+    res.send(thing);
 });
 
 module.exports = router;

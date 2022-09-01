@@ -16,6 +16,14 @@ router.get('/:id', async (req, res) => {
     res.send(location[0]);
 });
 
+router.delete('/:id', async (req, res) => {
+    await mySqlDb.getConnection().query(
+        `DELETE FROM ?? WHERE id = ?`,
+        ['locations', req.params.id]
+    );
+    res.send('Deleted');
+});
+
 router.post('/',  async (req, res) => {
     if (!req.body.title) {
         return res.status(400).send({error: 'Something are missing'});
@@ -27,7 +35,7 @@ router.post('/',  async (req, res) => {
     };
 
     const newLocation = await mySqlDb.getConnection().query(
-        'INSERT INTO ?? (title, description) values(?, ?)',
+        'INSERT INTO ?? (title, description) VALUES(?, ?)',
         ['locations', location.title, location.description]
     )
 
@@ -35,6 +43,21 @@ router.post('/',  async (req, res) => {
         ...location,
         id: newLocation.insertId,
     });
+});
+
+router.put('/:id',  async (req, res) => {
+
+    const location = {
+        title: req.body.title,
+        description: req.body.description
+    };
+
+    await mySqlDb.getConnection().query(
+        'UPDATE ?? SET ? where id = ?',
+        ['locations', {...location}, req.params.id]
+    )
+
+    res.send(location);
 });
 
 module.exports = router;

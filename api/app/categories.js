@@ -10,10 +10,18 @@ router.get('/', async (req, res) => {
 
 router.get('/:id', async (req, res) => {
     const [category] = await mySqlDb.getConnection().query(
-        `SELECT * from ?? where id = ?`,
+        `SELECT * FROM ?? WHERE id = ?`,
         ['categories', req.params.id]
     );
     res.send(category[0]);
+});
+
+router.delete('/:id', async (req, res) => {
+    await mySqlDb.getConnection().query(
+        `DELETE FROM ?? WHERE id = ?`,
+        ['categories', req.params.id]
+    );
+    res.send('Deleted');
 });
 
 router.post('/',  async (req, res) => {
@@ -27,7 +35,7 @@ router.post('/',  async (req, res) => {
     };
 
     const newCategory = await mySqlDb.getConnection().query(
-        'INSERT INTO ?? (title, description) values(?, ?)',
+        'INSERT INTO ?? (title, description) VALUES (?, ?)',
         ['categories', category.title, category.description]
     )
 
@@ -35,6 +43,21 @@ router.post('/',  async (req, res) => {
         ...category,
         id: newCategory.insertId,
     });
+});
+
+router.put('/:id',  async (req, res) => {
+
+    const category = {
+        title: req.body.title,
+        description: req.body.description
+    };
+
+    await mySqlDb.getConnection().query(
+        'UPDATE ?? SET ? WHERE id = ?',
+        ['categories', {...category}, req.params.id]
+    )
+
+    res.send(category);
 });
 
 module.exports = router;
