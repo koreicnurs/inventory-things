@@ -27,7 +27,7 @@ create table things
     title       varchar(255) not null,
     description text         null,
     photo       text         null,
-    datetime    varchar(10)  null,
+    datetime    date         null,
     constraint things_categories_null_fk
         foreign key (category_id) references categories (id)
             on update cascade,

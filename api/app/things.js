@@ -68,7 +68,7 @@ router.post('/',  upload.single('photo'), async (req, res) => {
     });
 });
 
-router.put('/:id', async (req, res) => {
+router.put('/:id', upload.single('photo'), async (req, res) => {
 
     const thing = {
         location_id: req.body.location_id,
