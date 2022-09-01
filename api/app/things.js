@@ -41,7 +41,7 @@ router.delete('/:id', async (req, res) => {
 });
 
 router.post('/',  upload.single('photo'), async (req, res) => {
-    if (!req.body.title || !req.body.location_id || !req.body.category_id) {
+    if (!req.body.title || !req.body.location_id || !req.body.category_id || !req.body.datetime) {
         return res.status(400).send({error: 'Something are missing'});
     }
 
@@ -49,7 +49,8 @@ router.post('/',  upload.single('photo'), async (req, res) => {
         location_id: req.body.location_id,
         category_id: req.body.category_id,
         title: req.body.title,
-        description: req.body.description
+        description: req.body.description,
+        datetime: req.body.datetime,
     };
 
     if (req.file) {
@@ -73,7 +74,8 @@ router.put('/:id',  upload.single('photo'), async (req, res) => {
         location_id: req.body.location_id,
         category_id: req.body.category_id,
         title: req.body.title,
-        description: req.body.description
+        description: req.body.description,
+        datetime: req.body.datetime,
     };
 
     if (req.file) {
