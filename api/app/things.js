@@ -24,22 +24,39 @@ router.get('/', async (req, res) => {
     res.send(things);
 });
 
-router.post('/',  (req, res) => {
-    if (!req.body.title || !req.body.id) {
+router.get('/:id', async (req, res) => {
+    const [thing] = await mySqlDb.getConnection().query(
+        `SELECT * from ?? where id = ?`,
+        ['things', req.params.id]
+    );
+    res.send(thing[0]);
+});
+
+router.post('/',  upload.single('photo'), async (req, res) => {
+    if (!req.body.title || !req.body.location_id || !req.body.category_id) {
         return res.status(400).send({error: 'Something are missing'});
     }
 
-    const categories = {
-        id: req.body.id,
+    const thing = {
+        location_id: req.body.location_id,
+        category_id: req.body.category_id,
         title: req.body.title,
-        description: req.destination
+        description: req.body.description
     };
 
     if (req.file) {
-        categories.image = req.file.filename;
+        thing.photo = req.file.filename;
     }
 
-    res.send(categories);
+    const newThing = await mySqlDb.getConnection().query(
+        'INSERT INTO ?? (location_id, category_id, title, description, photo) values(?, ?, ?, ?, ?)',
+        ['things', thing.location_id, thing.category_id, thing.title, thing.description, thing.photo]
+    )
+
+    res.send({
+        ...thing,
+        id: newThing.insertId,
+    });
 });
 
 module.exports = router;
