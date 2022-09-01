@@ -68,7 +68,7 @@ router.post('/',  upload.single('photo'), async (req, res) => {
     });
 });
 
-router.put('/:id',  upload.single('photo'), async (req, res) => {
+router.put('/:id', async (req, res) => {
 
     const thing = {
         location_id: req.body.location_id,
@@ -84,7 +84,7 @@ router.put('/:id',  upload.single('photo'), async (req, res) => {
 
     await mySqlDb.getConnection().query(
         "UPDATE ?? SET ? where id = ?",
-        ["locations", {...thing}, req.params.id]
+        ["things", {...thing}, req.params.id]
     )
 
     res.send(thing);
